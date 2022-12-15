@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "bigyo"
+version = "0.0.1"
+authors = [
+  { name="LegenDUST", email="dhnam0502@naver.com" },
+]
+description = "Python library for side-by-side diff in terminal, use difflib as its engine. Supports beautiful output with multi-width or zero-width character."
+readme = "README.md"
+requires-python = ">=3.6"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
