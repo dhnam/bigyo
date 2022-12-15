@@ -23,7 +23,7 @@ to
 ```py
 bigyo.Bigyo().compare(a, b)
 ```
-and you get your nice side-by-side comparison.
+and you get your nice side-by-side comparison generator. (Note it is generator)
 
 ## Bigyo rendering strategy
 
