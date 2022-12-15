@@ -286,4 +286,4 @@ if __name__ == "__main__":
     a = ["Hello, World"]
     b = ["Helo, Wold!"]
     for next_line_ in Bigyo(OnelineBigyoStrategy()).compare(a, b):
-        print(next_line_)
+        print(next_line_, end='')
