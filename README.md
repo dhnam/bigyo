@@ -5,6 +5,14 @@ Use difflib as its engine.
 
 Supports beautiful output with multi-width or zero-width character.
 
+## Install
+
+```
+pip install bigyo
+```
+
+It just works!
+
 ## How to
 
 Replace 
