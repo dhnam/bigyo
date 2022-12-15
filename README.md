@@ -44,3 +44,11 @@ Also there exists `OnelineBigyoStrategy` which will render difference like this.
 ```
 He>l<lo, Wo>r<ld|Helo, Wold<!>
 ```
+
+## History
+
+All the commits can be found in [github page](https://github.com/dhnam/bigyo).
+
+```
+0.0.1 2022.12.15 Project init!
+```
