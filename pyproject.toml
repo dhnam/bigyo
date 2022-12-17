@@ -10,10 +10,16 @@ authors = [
 ]
 description = "Python library for side-by-side diff in terminal, use difflib as its engine. Supports beautiful output with multi-width or zero-width character."
 readme = "README.md"
+license = {file = "LICENSE"}
 requires-python = ">=3.6"
-repository = "https://github.com/dhnam/bigyo"
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
 ]
+dependencies = [
+    "wcswidth",
+]
+
+[project.urls]
+repository = "https://github.com/dhnam/bigyo"
