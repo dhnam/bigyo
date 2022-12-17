@@ -34,7 +34,8 @@ class BigyoRenderer(ABC):
         """
         left_width = wcswidth(left)
         if left_width == -1 or wcswidth(right) == -1:
-            raise ValueError("Control character was included in string which has unknown effect while printing.")
+            raise ValueError("Control character was included in string"\
+                             "which has unknown effect while printing.")
         return f"{left}{' '*(self.maxlen - left_width)}{self.sep}{right}" + "\n"
 
     @abstractmethod
@@ -110,7 +111,7 @@ class OnelineBigyoRenderer(BigyoRenderer):
                left_replace: Optional[str] = None, right_replace: Optional[str] = None) -> str:
         delete = 0
         add = 1
-        def combine_str(string, op, place:list[bool] = None):
+        def combine_str(string, operation, place:list[bool] = None):
             combined: str = ""
             if place is None:
                 place = [True] * len(string)
@@ -119,13 +120,13 @@ class OnelineBigyoRenderer(BigyoRenderer):
             for next_char, is_combined in zip(string, place):
                 if is_combined != in_editing:
                     if not in_editing:
-                        combined += self.delete_mark[0] if op == delete else self.add_mark[0]
+                        combined += self.delete_mark[0] if operation == delete else self.add_mark[0]
                     else:
-                        combined += self.delete_mark[1] if op == delete else self.add_mark[1]
+                        combined += self.delete_mark[1] if operation == delete else self.add_mark[1]
                     in_editing = not in_editing
                 combined += next_char
             if in_editing:
-                combined += self.delete_mark[1] if op == delete else self.add_mark[1]
+                combined += self.delete_mark[1] if operation == delete else self.add_mark[1]
             return combined
 
         processed: list[str] = ["", ""]
