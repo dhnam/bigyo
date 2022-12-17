@@ -10,7 +10,7 @@ Supports beautiful output with multi-width or zero-width character.
 
 :date: 2022-12-15
 :Author: LegenDUST
-:Version: 0.0.2
+:Version: 0.1.0
 """
 
 import difflib
@@ -19,11 +19,11 @@ from abc import ABC, abstractmethod
 from wcwidth import wcswidth, wcwidth
 
 
-class BigyoStrategy(ABC):
+class BigyoRenderer(ABC):
     """
-    Abstract Base Bigyo Strategy.
+    Abstract Base Bigyo rendering strategy.
 
-    Bigyo strategy defines how :class:`Bigyo` generates side by side comparison lines.
+    Bigyo rendering strategy defines how :class:`Bigyo` generates side by side comparison lines.
 
     :param sep: Separator for separate two compared lines, defaults to "|"
     :param mark_unchanged: Flag to decide :class:`Bigyo` whether it passes line as-is or mark unchanged line with "  " indicator, defaultes to False
@@ -47,7 +47,7 @@ class BigyoStrategy(ABC):
         return f"{left}{' '*(self.maxlen - wcswidth(left))}{self.sep}{right}" + "\n"
 
     @abstractmethod
-    def next_line(self, *, left: str="", right: str="", left_replace: Optional[str]=None, right_replace: Optional[str]=None) -> str:
+    def render(self, *, left: str="", right: str="", left_replace: Optional[str]=None, right_replace: Optional[str]=None) -> str:
         """
         Function to actually build comparison lines.
 
@@ -58,16 +58,16 @@ class BigyoStrategy(ABC):
         :return: Compared line
         """
 
-class SimpleBigyoStrategy(BigyoStrategy):
+class SimpleBigyoRenderer(BigyoRenderer):
     """
-    Simple Bigyo Stratgy.
+    Simple Bigyo rendering stratgy.
 
     Will produce side-by-side comparison, with difference is displayed as separated line.
 
     :param sep: Separator for separate two compared lines, defaults to "|"
     :param mark_unchanged: Flag to decide :class:`Bigyo` whether it passes line as-is or mark unchanged line with "  " indicator, defaultes to False
     """
-    def next_line(self, *, left: str="", right: str="", left_replace: Optional[str]=None, right_replace: Optional[str]=None) -> str:
+    def render(self, *, left: str="", right: str="", left_replace: Optional[str]=None, right_replace: Optional[str]=None) -> str:
         def replace_unicode_match(string: str, replace: str) -> str:
             ret = ""
             for next_char, next_replace in zip(string, replace):
@@ -86,9 +86,9 @@ class SimpleBigyoStrategy(BigyoStrategy):
         return diff_line
 
 
-class OnelineBigyoStrategy(BigyoStrategy):
+class OnelineBigyoRenderer(BigyoRenderer):
     """
-    One-line Bigyo Stratgy.
+    One-line Bigyo rendering stratgy.
 
     Will produce side-by-side comparison, with difference is displayed in-line with marks.
 
@@ -108,7 +108,7 @@ class OnelineBigyoStrategy(BigyoStrategy):
         self.add_mark = add_mark
         self.delete_mark = delete_mark
 
-    def next_line(self, *, left: str = "", right: str = "", left_replace: Optional[str] = None, right_replace: Optional[str] = None) -> str:
+    def render(self, *, left: str = "", right: str = "", left_replace: Optional[str] = None, right_replace: Optional[str] = None) -> str:
         DELETE = 0
         ADD = 1
         def combine_str(string, op, place:list[bool] = None):
@@ -165,49 +165,50 @@ class Bigyo:
        Bigyo().compare()
     and you'll get nice side-by-side comparison.
 
-    :param bigyo_strategy: Bigyo strategy, which decides way to render comparison. It can be :class:`BigyoStrategy` object, or None (which uses :class:`SimpleBigyoStrategy`), defaults to None
+    :param bigyo_renderer: Bigyo rendering strategy, which decides way to render comparison.
+    It can be :class:`BigyoRenderer` object, or None (which uses :class:`SimpleBigyoRenderer`), defaults to None
     """
-    def __init__(self, bigyo_strategy: Optional[BigyoStrategy]=None):
+    def __init__(self, bigyo_renderer: Optional[BigyoRenderer]=None):
         self._recent_indicator: str = ''
         self._recent_lines: list[str] = []
-        if bigyo_strategy is None:
-            bigyo_strategy = SimpleBigyoStrategy()
-        self.bigyo_strategy = bigyo_strategy
+        if bigyo_renderer is None:
+            bigyo_renderer = SimpleBigyoRenderer()
+        self.bigyo_renderer = bigyo_renderer
 
     # new line patterns: " ", "-", "+", "-+", "-?+", "-+?", "-?+?"
     # tokens: " ", "-", "+", "?"
     def _completed_pattern(self, indicator: str) -> Iterator[str]:
         assert self._recent_indicator.startswith(indicator)
         if indicator == " ":
-            yield self.bigyo_strategy.next_line(
+            yield self.bigyo_renderer.render(
                 left=self._recent_lines[0],
                 right=self._recent_lines[0],
                 )
             self._recent_indicator = self._recent_indicator[1:]
             self._recent_lines = self._recent_lines[1:]
         elif indicator == "+":
-            yield self.bigyo_strategy.next_line(
+            yield self.bigyo_renderer.render(
                 right=self._recent_lines[0],
                 )
             self._recent_indicator = self._recent_indicator[1:]
             self._recent_lines = self._recent_lines[1:]
         elif indicator == "-":
-            yield self.bigyo_strategy.next_line(
+            yield self.bigyo_renderer.render(
                 left=self._recent_lines[0],
                 )
             self._recent_indicator = self._recent_indicator[1:]
             self._recent_lines = self._recent_lines[1:]
         elif indicator == "-+":
-            yield self.bigyo_strategy.next_line(
+            yield self.bigyo_renderer.render(
                 left=self._recent_lines[0],
                 right=self._recent_lines[1],
                 )
             self._recent_indicator = self._recent_indicator[2:]
             self._recent_lines = self._recent_lines[2:]
         elif indicator == "-?+":
-            if self.bigyo_strategy.mark_unchanged:
+            if self.bigyo_renderer.mark_unchanged:
                 self._recent_lines[2] = " " + self._recent_lines[2][1:]
-            yield self.bigyo_strategy.next_line(
+            yield self.bigyo_renderer.render(
                 left=self._recent_lines[0],
                 right=self._recent_lines[2],
                 left_replace=self._recent_lines[1],
@@ -215,9 +216,9 @@ class Bigyo:
             self._recent_indicator = self._recent_indicator[3:]
             self._recent_lines = self._recent_lines[3:]
         elif indicator == "-+?":
-            if self.bigyo_strategy.mark_unchanged:
+            if self.bigyo_renderer.mark_unchanged:
                 self._recent_lines[0] = " " + self._recent_lines[0][1:]
-            yield self.bigyo_strategy.next_line(
+            yield self.bigyo_renderer.render(
                 left=self._recent_lines[0],
                 right=self._recent_lines[1],
                 right_replace=self._recent_lines[2],
@@ -225,7 +226,7 @@ class Bigyo:
             self._recent_indicator = self._recent_indicator[3:]
             self._recent_lines = self._recent_lines[3:]
         elif indicator == "-?+?":
-            yield self.bigyo_strategy.next_line(
+            yield self.bigyo_renderer.render(
                 left=self._recent_lines[0],
                 right=self._recent_lines[2],
                 left_replace=self._recent_lines[1],
@@ -243,7 +244,7 @@ class Bigyo:
         :return: Iterator, where `next()` call returns line with its difference.
         """
         # TODO reduce memory usage of the line? Is there really big memory usage in the line?
-        self.bigyo_strategy.maxlen = max(map(wcswidth, map(lambda x: x.strip("\n"), left))) + 2
+        self.bigyo_renderer.maxlen = max(map(wcswidth, map(lambda x: x.strip("\n"), left))) + 2
         lines = difflib.Differ().compare(left, right)
 
         for next_line in lines:

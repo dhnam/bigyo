@@ -29,21 +29,27 @@ bigyo.Bigyo().compare(a, b)
 ```
 and you get your nice side-by-side comparison generator. (Note it is generator)
 
+Also, to get full comparison string at once, there is
+```py
+bigyo.Bigyo().compared_string(a, b)
+```
+method for you to use.
+
 ## Bigyo rendering strategy
 
-Default bigyo rendering strategy is `SimpleBigyoStrategy` with default params, which will look like this.
+Default bigyo rendering strategy is `SimpleBigyoRenderer` with default params, which will look like this.
 ```
 - Hello, World |+  Helo, Wold!
 ?    -     -   |?            +
 ```
 
-However, you can change separator (defaults to `|`) if you wish, by making `BigyoStrategy` class with parameter,
+However, you can change separator (defaults to `|`) if you wish, by making `BigyoRenderer` class with parameter,
 ```py
-bigyo_strat = SimpleBigyoStrategy(sep="*")
+bigyo_rd = SimpleBigyoRenderer(sep="*")
 ```
 ...And give it as parameter of `Bigyo`.
 ```py
-bigyo_cls = bigyo.Bigyo(bigyo_strategy = bigyo_strat)
+bigyo_cls = bigyo.Bigyo(bigyo_renderer = bigyo_rd)
 ```
 
 In this case, result will look like this.
@@ -52,7 +58,7 @@ In this case, result will look like this.
 ?    -     -   *?            +
 ```
 
-Also there exists `OnelineBigyoStrategy` which will render difference like this.
+Also there exists `OnelineBigyoRenderer` which will render difference like this.
 ```
 He>l<lo, Wo>r<ld|Helo, Wold<!>
 ```
@@ -63,4 +69,5 @@ All the commits can be found in [github page](https://github.com/dhnam/bigyo).
 
 ```
 0.0.1 2022.12.15 Project init!
+0.1.0 2022.12.17 Added compared_string method, changed name from BigyoStrategy to BigyoRenderer, bugfix
 ```
