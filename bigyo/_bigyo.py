@@ -21,7 +21,8 @@ class Bigyo:
     and you'll get nice side-by-side comparison.
 
     :param bigyo_renderer: Bigyo rendering strategy, which decides way to render comparison.
-    It can be :class:`BigyoRenderer` object, or None (which uses :class:`SimpleBigyoRenderer`), defaults to None
+    It can be :class:`BigyoRenderer` object,
+    or None (which uses :class:`SimpleBigyoRenderer`), defaults to None
     """
     def __init__(self, bigyo_renderer: Optional[BigyoRenderer]=None):
         self._recent_indicator: str = ''
@@ -147,7 +148,7 @@ class Bigyo:
         Return full compared string at once.
 
         Is just ``return ''.join(self.compare(left, right))``. Guess it will quite comes in handy.
-        
+
         :param left: Left sequence to compare
         :param right: Right sequence to compare
         """
