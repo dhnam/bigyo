@@ -174,10 +174,63 @@ class Bigyo:
             bigyo_strategy = SimpleBigyoStrategy()
         self.bigyo_strategy = bigyo_strategy
 
+    # new line patterns: " ", "-", "+", "-?+", "-+?", "-?+?"
+    # tokens: " ", "-", "+", "?"
+    def _completed_pattern(self, indicator: str) -> Iterator[str]:
+        assert self._recent_indicator.startswith(indicator)
+        if indicator == " ":
+            yield self.bigyo_strategy.next_line(
+                left=self._recent_lines[0],
+                right=self._recent_lines[0],
+                )
+            self._recent_indicator = self._recent_indicator[1:]
+            self._recent_lines = self._recent_lines[1:]
+        elif indicator == "+":
+            yield self.bigyo_strategy.next_line(
+                right=self._recent_lines[0],
+                )
+            self._recent_indicator = self._recent_indicator[1:]
+            self._recent_lines = self._recent_lines[1:]
+        elif indicator == "-":
+            yield self.bigyo_strategy.next_line(
+                left=self._recent_lines[0],
+                )
+            self._recent_indicator = self._recent_indicator[1:]
+            self._recent_lines = self._recent_lines[1:]
+        elif indicator == "-?+":
+            if self.bigyo_strategy.mark_unchanged:
+                self._recent_lines[2] = " " + self._recent_lines[2][1:]
+            yield self.bigyo_strategy.next_line(
+                left=self._recent_lines[0],
+                right=self._recent_lines[2],
+                left_replace=self._recent_lines[1],
+                )
+            self._recent_indicator = self._recent_indicator[3:]
+            self._recent_lines = self._recent_lines[3:]
+        elif indicator == "-+?":
+            if self.bigyo_strategy.mark_unchanged:
+                self._recent_lines[0] = " " + self._recent_lines[0][1:]
+            yield self.bigyo_strategy.next_line(
+                left=self._recent_lines[0],
+                right=self._recent_lines[1],
+                right_replace=self._recent_lines[2],
+                )
+            self._recent_indicator = self._recent_indicator[3:]
+            self._recent_lines = self._recent_lines[3:]
+        elif indicator == "-?+?":
+            yield self.bigyo_strategy.next_line(
+                left=self._recent_lines[0],
+                right=self._recent_lines[2],
+                left_replace=self._recent_lines[1],
+                right_replace=self._recent_lines[3],
+                )
+            self._recent_indicator = self._recent_indicator[4:]
+            self._recent_lines = self._recent_lines[4:]
+
     def compare(self, left: Sequence[str], right: Sequence[str]) -> Iterator[str]:
         """
         Generator for generating side-by-side comparison.
-        
+
         :param left: Left sequence to compare
         :param right: Right sequence to compare
         :return: Iterator, where `next()` call returns line with its difference.
@@ -186,100 +239,47 @@ class Bigyo:
         self.bigyo_strategy.maxlen = max(map(wcswidth, map(lambda x: x.strip("\n"), left))) + 2
         lines = difflib.Differ().compare(left, right)
 
-        # new line patterns: " ", "-", "+", "-?+", "-+?", "-?+?"
-        # tokens: " ", "-", "+", "?"
-        def completed_pattern(indicator: str) -> Iterator[str]:
-            assert self._recent_indicator.startswith(indicator)
-            if indicator == " ":
-                yield self.bigyo_strategy.next_line(
-                    left=self._recent_lines[0],
-                    right=self._recent_lines[0],
-                    )
-                self._recent_indicator = self._recent_indicator[1:]
-                self._recent_lines = self._recent_lines[1:]
-            elif indicator == "+":
-                yield self.bigyo_strategy.next_line(
-                    right=self._recent_lines[0],
-                    )
-                self._recent_indicator = self._recent_indicator[1:]
-                self._recent_lines = self._recent_lines[1:]
-            elif indicator == "-":
-                yield self.bigyo_strategy.next_line(
-                    left=self._recent_lines[0],
-                    )
-                self._recent_indicator = self._recent_indicator[1:]
-                self._recent_lines = self._recent_lines[1:]
-            elif indicator == "-?+":
-                if self.bigyo_strategy.mark_unchanged:
-                    self._recent_lines[2] = " " + self._recent_lines[2][1:]
-                yield self.bigyo_strategy.next_line(
-                    left=self._recent_lines[0],
-                    right=self._recent_lines[2],
-                    left_replace=self._recent_lines[1],
-                    )
-                self._recent_indicator = self._recent_indicator[3:]
-                self._recent_lines = self._recent_lines[3:]
-            elif indicator == "-+?":
-                if self.bigyo_strategy.mark_unchanged:
-                    self._recent_lines[0] = " " + self._recent_lines[0][1:]
-                yield self.bigyo_strategy.next_line(
-                    left=self._recent_lines[0],
-                    right=self._recent_lines[1],
-                    right_replace=self._recent_lines[2],
-                    )
-                self._recent_indicator = self._recent_indicator[3:]
-                self._recent_lines = self._recent_lines[3:]
-            elif indicator == "-?+?":
-                yield self.bigyo_strategy.next_line(
-                    left=self._recent_lines[0],
-                    right=self._recent_lines[2],
-                    left_replace=self._recent_lines[1],
-                    right_replace=self._recent_lines[3],
-                    )
-                self._recent_indicator = self._recent_indicator[4:]
-                self._recent_lines = self._recent_lines[4:]
-
         for next_line in lines:
             next_line = next_line.strip("\n")
             self._recent_indicator += next_line[0]
             self._recent_lines.append(next_line)
             
             if self._recent_indicator == " ":
-                yield from completed_pattern(" ")
+                yield from self._completed_pattern(" ")
             elif self._recent_indicator == "+":
-                yield from completed_pattern("+")
+                yield from self._completed_pattern("+")
             elif self._recent_indicator == "- ":
-                yield from completed_pattern("-")
-                yield from completed_pattern(" ")
+                yield from self._completed_pattern("-")
+                yield from self._completed_pattern(" ")
             elif self._recent_indicator == "--":
-                yield from completed_pattern("-")
+                yield from self._completed_pattern("-")
             elif self._recent_indicator == "-+ ":
-                yield from completed_pattern("-")
-                yield from completed_pattern("+")
-                yield from completed_pattern(" ")
+                yield from self._completed_pattern("-")
+                yield from self._completed_pattern("+")
+                yield from self._completed_pattern(" ")
             elif self._recent_indicator == "-+-":
-                yield from completed_pattern("-")
-                yield from completed_pattern("+")
+                yield from self._completed_pattern("-")
+                yield from self._completed_pattern("+")
             elif self._recent_indicator == "-++":
-                yield from completed_pattern("-")
-                yield from completed_pattern("+")
-                yield from completed_pattern("+")
+                yield from self._completed_pattern("-")
+                yield from self._completed_pattern("+")
+                yield from self._completed_pattern("+")
             elif self._recent_indicator == "-+?":
-                yield from completed_pattern("-+?")
+                yield from self._completed_pattern("-+?")
             elif self._recent_indicator in ("-? ",  "-?-" , "-??"):
                 raise Exception(self._recent_indicator)
             elif self._recent_indicator == "-?+ ":
-                yield from completed_pattern("-?+")
-                yield from completed_pattern(" ")
+                yield from self._completed_pattern("-?+")
+                yield from self._completed_pattern(" ")
             elif self._recent_indicator == "-?+-":
-                yield from completed_pattern("-?+")
+                yield from self._completed_pattern("-?+")
             elif self._recent_indicator == "-?++":
-                yield from completed_pattern("-?+")
-                yield from completed_pattern("+")
+                yield from self._completed_pattern("-?+")
+                yield from self._completed_pattern("+")
             elif self._recent_indicator == "-?+?":
-                yield from completed_pattern("-?+?")
+                yield from self._completed_pattern("-?+?")
         if self._recent_indicator != "":
-            yield from completed_pattern(self._recent_indicator)
+            yield from self._completed_pattern(self._recent_indicator)
 
 
 if __name__ == "__main__":
