@@ -99,7 +99,6 @@ class Bigyo:
         :param right: Right sequence to compare
         :return: Iterator, where `next()` call returns line with its difference.
         """
-        # TODO reduce memory usage of the line? Is there really big memory usage in the line?
         self.bigyo_renderer.maxlen = max(map(wcswidth, map(lambda x: x.strip("\n"), left))) + 2
         lines = difflib.Differ().compare(left, right)
 
