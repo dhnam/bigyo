@@ -1,4 +1,8 @@
 # bigyo
+
+[![Downloads](https://pepy.tech/badge/bigyo)](https://pepy.tech/project/bigyo)
+(Badge for me :D)
+
 Simple python library for side-by-side diff in terminal.
 
 Use difflib as its engine.
