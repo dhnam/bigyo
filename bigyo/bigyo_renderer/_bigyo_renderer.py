@@ -32,7 +32,10 @@ class BigyoRenderer(ABC):
         :param right: Right string to be printed
         :return: joined string with appropriate spacing and separater
         """
-        return f"{left}{' '*(self.maxlen - wcswidth(left))}{self.sep}{right}" + "\n"
+        left_width = wcswidth(left)
+        if left_width == -1 or wcswidth(right) == -1:
+            raise ValueError("Control character was included in string which has unknown effect while printing.")
+        return f"{left}{' '*(self.maxlen - left_width)}{self.sep}{right}" + "\n"
 
     @abstractmethod
     def render(self, *, left: str="", right: str="",\
