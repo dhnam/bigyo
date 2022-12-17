@@ -70,4 +70,5 @@ All the commits can be found in [github page](https://github.com/dhnam/bigyo).
 ```
 0.0.1 2022.12.15 Project init!
 0.1.0 2022.12.17 Added comparison_string method, changed name from BigyoStrategy to BigyoRenderer, bugfix
+0.1.1 2022.12.17 Separate bigyo_renderer, change directory structure
 ```
