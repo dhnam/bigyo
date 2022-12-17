@@ -10,7 +10,7 @@ Supports beautiful output with multi-width or zero-width character.
 
 :date: 2022-12-15
 :Author: LegenDUST
-:Version: 0.0.1
+:Version: 0.0.2
 """
 
 import difflib
@@ -278,12 +278,22 @@ class Bigyo:
                 yield from self._completed_pattern("+")
             elif self._recent_indicator == "-?+?":
                 yield from self._completed_pattern("-?+?")
+
         if self._recent_indicator != "":
             yield from self._completed_pattern(self._recent_indicator)
 
+    def compared_string(self, left: Sequence[str], right: Sequence[str]) -> str:
+        """
+        Return full compared string at once.
+
+        Is just ``return ''.join(self.compare(left, right))``. Guess it will quite comes in handy.
+        
+        :param left: Left sequence to compare
+        :param right: Right sequence to compare
+        """
+        return ''.join(self.compare(left, right))
 
 if __name__ == "__main__":
-    a = ["Hello, World"]
-    b = ["Helo, Wold!"]
-    for next_line_ in Bigyo(OnelineBigyoStrategy()).compare(a, b):
-        print(next_line_, end='')
+    a = ["Hello, World\n", "안녕, 세계"]
+    b = ["Helo, Wold!\n", "안넝, 새개!"]
+    print(Bigyo().compared_string(a, b))
