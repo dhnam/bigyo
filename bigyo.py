@@ -287,7 +287,7 @@ class Bigyo:
         if self._recent_indicator != "":
             yield from self._completed_pattern(self._recent_indicator)
 
-    def compared_string(self, left: Sequence[str], right: Sequence[str]) -> str:
+    def comparison_string(self, left: Sequence[str], right: Sequence[str]) -> str:
         """
         Return full compared string at once.
 
@@ -301,4 +301,4 @@ class Bigyo:
 if __name__ == "__main__":
     a = ["Hello, World\n", "안녕, 세계"]
     b = ["Helo, Wold!\n", "안넝, 새개!"]
-    print(Bigyo().compared_string(a, b))
+    print(Bigyo().comparison_string(a, b))

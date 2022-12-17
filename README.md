@@ -31,7 +31,7 @@ and you get your nice side-by-side comparison generator. (Note it is generator)
 
 Also, to get full comparison string at once, there is
 ```py
-bigyo.Bigyo().compared_string(a, b)
+bigyo.Bigyo().comparison_string(a, b)
 ```
 method for you to use.
 
@@ -69,5 +69,5 @@ All the commits can be found in [github page](https://github.com/dhnam/bigyo).
 
 ```
 0.0.1 2022.12.15 Project init!
-0.1.0 2022.12.17 Added compared_string method, changed name from BigyoStrategy to BigyoRenderer, bugfix
+0.1.0 2022.12.17 Added comparison_string method, changed name from BigyoStrategy to BigyoRenderer, bugfix
 ```
