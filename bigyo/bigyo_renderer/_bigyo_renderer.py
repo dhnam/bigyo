@@ -112,21 +112,25 @@ class OnelineBigyoRenderer(BigyoRenderer):
         delete = 0
         add = 1
         def combine_str(string, operation, place:list[bool] = None):
-            combined: str = ""
             if place is None:
                 place = [True] * len(string)
             assert len(place) == len(string)
+    
+            combined: str = ""
             in_editing: bool = False
+
+            opener = self.delete_mark[0] if operation == delete else self.add_mark[0]
+            closer = self.delete_mark[1] if operation == delete else self.add_mark[1]
             for next_char, is_combined in zip(string, place):
                 if is_combined != in_editing:
                     if not in_editing:
-                        combined += self.delete_mark[0] if operation == delete else self.add_mark[0]
+                        combined += opener
                     else:
-                        combined += self.delete_mark[1] if operation == delete else self.add_mark[1]
+                        combined += closer
                     in_editing = not in_editing
                 combined += next_char
             if in_editing:
-                combined += self.delete_mark[1] if operation == delete else self.add_mark[1]
+                combined += closer
             return combined
 
         processed: list[str] = ["", ""]
