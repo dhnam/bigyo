@@ -174,7 +174,7 @@ class Bigyo:
             bigyo_strategy = SimpleBigyoStrategy()
         self.bigyo_strategy = bigyo_strategy
 
-    # new line patterns: " ", "-", "+", "-?+", "-+?", "-?+?"
+    # new line patterns: " ", "-", "+", "-+", "-?+", "-+?", "-?+?"
     # tokens: " ", "-", "+", "?"
     def _completed_pattern(self, indicator: str) -> Iterator[str]:
         assert self._recent_indicator.startswith(indicator)
@@ -197,6 +197,13 @@ class Bigyo:
                 )
             self._recent_indicator = self._recent_indicator[1:]
             self._recent_lines = self._recent_lines[1:]
+        elif indicator == "-+":
+            yield self.bigyo_strategy.next_line(
+                left=self._recent_lines[0],
+                right=self._recent_lines[1],
+                )
+            self._recent_indicator = self._recent_indicator[2:]
+            self._recent_lines = self._recent_lines[2:]
         elif indicator == "-?+":
             if self.bigyo_strategy.mark_unchanged:
                 self._recent_lines[2] = " " + self._recent_lines[2][1:]
@@ -243,7 +250,7 @@ class Bigyo:
             next_line = next_line.strip("\n")
             self._recent_indicator += next_line[0]
             self._recent_lines.append(next_line)
-            
+
             if self._recent_indicator == " ":
                 yield from self._completed_pattern(" ")
             elif self._recent_indicator == "+":
@@ -254,15 +261,12 @@ class Bigyo:
             elif self._recent_indicator == "--":
                 yield from self._completed_pattern("-")
             elif self._recent_indicator == "-+ ":
-                yield from self._completed_pattern("-")
-                yield from self._completed_pattern("+")
+                yield from self._completed_pattern("-+")
                 yield from self._completed_pattern(" ")
             elif self._recent_indicator == "-+-":
-                yield from self._completed_pattern("-")
-                yield from self._completed_pattern("+")
+                yield from self._completed_pattern("-+")
             elif self._recent_indicator == "-++":
-                yield from self._completed_pattern("-")
-                yield from self._completed_pattern("+")
+                yield from self._completed_pattern("-+")
                 yield from self._completed_pattern("+")
             elif self._recent_indicator == "-+?":
                 yield from self._completed_pattern("-+?")
