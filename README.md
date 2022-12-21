@@ -72,4 +72,5 @@ All the commits can be found in [github page](https://github.com/dhnam/bigyo).
 0.1.0 2022.12.17 Added comparison_string method, changed name from BigyoStrategy to BigyoRenderer, bugfix
 0.1.1 2022.12.17 Separate bigyo_renderer, change directory structure
 0.1.2 2022.12.21 Now with sphinx document!
+0.1.3 2022.12.21 Requirements.txt had typo.
 ```
