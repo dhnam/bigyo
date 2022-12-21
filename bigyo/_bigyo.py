@@ -9,20 +9,19 @@ from bigyo.bigyo_renderer import BigyoRenderer, SimpleBigyoRenderer
 
 class Bigyo:
     """
-    Bigyo
-    =====
-
     Bigyo (ko: 비교, comparison) is class for side-by-side comparison, using `difflib` as its engine.
 
-    Simply replace
+    Simply replace::
+
        difflib.Differ().compare(a, b)
-    to
+
+    to::
+
        Bigyo().compare()
+
     and you'll get nice side-by-side comparison.
 
-    :param bigyo_renderer: Bigyo rendering strategy, which decides way to render comparison.
-    It can be :class:`BigyoRenderer` object,
-    or None (which uses :class:`SimpleBigyoRenderer`), defaults to None
+    :param bigyo_renderer: Bigyo rendering strategy, which decides way to render comparison. It can be :class:`BigyoRenderer` object, or None (which uses :class:`SimpleBigyoRenderer`), defaults to None
     """
     def __init__(self, bigyo_renderer: Optional[BigyoRenderer]=None):
         self._recent_indicator: str = ''

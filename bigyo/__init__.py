@@ -1,18 +1,18 @@
 """
-bigyo (비교: comparison)
-========================
+bigyo
+=====
 
-Python library for side-by-side diff in terminal.
+Bigyo (비교(KR): comparison) is Python library for side-by-side diff in terminal.
 
 use difflib as its engine.
 
 Supports beautiful output with multi-width or zero-width character.
 
-:date: 2022-12-15
+:date: 2022-12-21
 :Author: LegenDUST
-:Version: 0.1.1
+:Version: 0.1.2
 """
 
-from bigyo._bigyo import *
+from bigyo._bigyo import Bigyo
 
 __all__ = ['Bigyo']

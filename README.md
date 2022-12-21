@@ -3,7 +3,7 @@
 [![Downloads](https://pepy.tech/badge/bigyo)](https://pepy.tech/project/bigyo)
 (Badge for me :D)
 
-Simple python library for side-by-side diff in terminal.
+Bigyo (비교(KR): Comparison) is simple python library for side-by-side diff in terminal.
 
 Use difflib as its engine.
 
@@ -71,4 +71,5 @@ All the commits can be found in [github page](https://github.com/dhnam/bigyo).
 0.0.1 2022.12.15 Project init!
 0.1.0 2022.12.17 Added comparison_string method, changed name from BigyoStrategy to BigyoRenderer, bugfix
 0.1.1 2022.12.17 Separate bigyo_renderer, change directory structure
+0.1.2 2022.12.21 Now with sphinx document!
 ```
