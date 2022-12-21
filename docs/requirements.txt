@@ -1,0 +1,3 @@
+wcwidth
+shpinx
+sphinx_mdinclude
