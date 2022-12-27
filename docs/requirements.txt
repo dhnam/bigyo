@@ -2,3 +2,4 @@ wcwidth
 sphinx
 sphinx_mdinclude
 sphinx_autodoc_typehints
+sphinx_rtd_theme

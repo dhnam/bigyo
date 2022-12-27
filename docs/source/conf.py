@@ -8,12 +8,12 @@
 
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../'))   # Default path
+sys.path.insert(0, os.path.abspath('../../'))   # Default path
 
 project = 'bigyo'
 copyright = '2022, LegenDUST'
 author = 'LegenDUST'
-release = '0.1.1'
+release = '0.1.3'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

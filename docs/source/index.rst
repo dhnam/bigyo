@@ -21,4 +21,4 @@ Indices and tables
 * :ref:`search`
 
 
-.. mdinclude:: ../README.md
+.. mdinclude:: ../../README.md
