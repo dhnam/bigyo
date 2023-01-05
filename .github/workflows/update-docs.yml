@@ -35,9 +35,6 @@ jobs:
     - name: Make docs
       working-directory: ./docs
       run: make html
-    - name: Move docs
-      working-directory: ./docs
-      run: rsync -a ./build/html/* ./
     - name: Add & Commit
       uses: EndBug/add-and-commit@v9.1.1
       with:
@@ -48,7 +45,7 @@ jobs:
     - name: Upload artifact
       uses: actions/upload-pages-artifact@v1
       with:
-        path: './docs'
+        path: './docs/build/html/'
 
   deploy:
     needs: update_docs
