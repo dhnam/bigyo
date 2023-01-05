@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath('../../'))   # Default path
 project = 'bigyo'
 copyright = '2022, LegenDUST'
 author = 'LegenDUST'
-release = '0.1.4a3'
+release = '0.1.4a4'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration

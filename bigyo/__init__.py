@@ -10,7 +10,7 @@ Supports beautiful output with multi-width or zero-width character.
 
 :date: 2022-12-21
 :Author: LegenDUST
-:Version: 0.1.4a3
+:Version: 0.1.4a4
 """
 
 from bigyo._bigyo import Bigyo
