@@ -23,4 +23,5 @@ jobs:
     - name: Add & Commit
       uses: EndBug/add-and-commit@v9.1.1
       with:
-        default_author: github_actions
+        default_author: user_info
+        message: 'update docs'
