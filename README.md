@@ -1,7 +1,7 @@
 # bigyo
 
-[![Downloads](https://pepy.tech/badge/bigyo)](https://pepy.tech/project/bigyo)
-(Badge for me :D)
+[![Downloads](https://pepy.tech/badge/bigyo)](https://pepy.tech/project/bigyo) [![Documentation Status](https://readthedocs.org/projects/bigyo/badge/?version=latest)](https://bigyo.readthedocs.io/en/latest/?badge=latest)
+(Badges for me :D)
 
 Bigyo (비교(KR): Comparison) is simple python library for side-by-side diff in terminal.
 
