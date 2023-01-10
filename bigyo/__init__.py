@@ -8,9 +8,9 @@ use difflib as its engine.
 
 Supports beautiful output with multi-width or zero-width character.
 
-:date: 2022-12-21
+:date: 2023-01-10
 :Author: LegenDUST
-:Version: 0.1.4a8
+:Version: 1.0.0
 """
 
 from bigyo._bigyo import Bigyo

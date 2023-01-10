@@ -75,4 +75,5 @@ All the commits can be found in [github page](https://github.com/dhnam/bigyo).
 0.1.3   2022.12.21 Requirements.txt had typo.
 0.1.4   2022.12.27 Documentation fixs
 0.1.4a8 2023.01.05 Tinkering with github action (nothing to do with actual program!)
+1.0.0   2023.01.10 Added VerticalBigyoRenderer
 ```
