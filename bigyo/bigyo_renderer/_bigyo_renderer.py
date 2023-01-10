@@ -22,25 +22,59 @@ class BigyoRenderer(ABC):
         self.sep = sep
         self.mark_unchanged = mark_unchanged
 
-    def join_with_spaces(self, left: str, right: str) -> str:
+    @staticmethod
+    def _string_width(string: str) -> int:
         """
-        Joins two string with separater `self.sep`.
+        Helper function to calculate string width displayed on console.
+
+        :param string: String to calculate width
+        :return: Width of the string
+        :raises ValueError: When string includes control character
+        """
+        string_width = wcswidth(string)
+        if string_width == -1:
+            raise ValueError("Control character was included in string"\
+                             "which has unknown effect while printing.")
+        return string_width
+
+    def _join_with_spaces(self, left: str, right: str) -> str:
+        """
+        Helper function to join two string with separater `self.sep`.
 
         Spacing is added to make it look nicer.
 
         :param left: Left string to be printed
         :param right: Right string to be printed
         :return: joined string with appropriate spacing and separater
+        :raises ValueError: When string includes control character
         """
-        left_width = wcswidth(left)
-        if left_width == -1 or wcswidth(right) == -1:
+        left_width = BigyoRenderer._string_width(left)
+        if wcswidth(right) == -1:
             raise ValueError("Control character was included in string"\
                              "which has unknown effect while printing.")
         return f"{left}{' '*(self.maxlen - left_width)}{self.sep}{right}" + "\n"
 
+    @staticmethod
+    def _replace_unicode_match(string: str, replace: str) -> str:
+        """
+        Helper function to make replace string match the visual length of the string.
+
+        :param string: Original string to match
+        :param replace: Replace string to modify
+        :return: Replace string which look *nicer*
+        """
+        ret = ""
+        for next_char, next_replace in zip(string, replace):
+            if wcwidth(next_char) == 1:
+                ret += next_replace
+            elif wcwidth(next_char) == 2:
+                ret += next_replace * 2
+        return ret
+
     @abstractmethod
     def render(self, *, left: str="", right: str="",\
                left_replace: Optional[str]=None, right_replace: Optional[str]=None) -> str:
+        # TODO force maxlen to be set before render is called
         """
         Function to actually build comparison lines.
 
@@ -65,25 +99,17 @@ class SimpleBigyoRenderer(BigyoRenderer):
     """
     def render(self, *, left: str="", right: str="",\
                left_replace: Optional[str]=None, right_replace: Optional[str]=None) -> str:
-        def replace_unicode_match(string: str, replace: str) -> str:
-            ret = ""
-            for next_char, next_replace in zip(string, replace):
-                if wcwidth(next_char) == 1:
-                    ret += next_replace
-                elif wcwidth(next_char) == 2:
-                    ret += next_replace * 2
-            return ret
-
-        diff_line = self.join_with_spaces(left, right)
+        diff_line = self._join_with_spaces(left, right)
         if any([left_replace, right_replace]):
-            diff_line += self.join_with_spaces(
-                "" if left_replace is None else replace_unicode_match(left, left_replace),
-                "" if right_replace is None else replace_unicode_match(right, right_replace),
+            diff_line += self._join_with_spaces(
+                "" if left_replace is None else BigyoRenderer._replace_unicode_match(left, left_replace),
+                "" if right_replace is None else BigyoRenderer._replace_unicode_match(right, right_replace),
                 )
         return diff_line
 
 
 class OnelineBigyoRenderer(BigyoRenderer):
+    # TODO Add margine to prettify
     """
     One-line Bigyo rendering stratgy.
 
@@ -115,7 +141,7 @@ class OnelineBigyoRenderer(BigyoRenderer):
             if place is None:
                 place = [True] * len(string)
             assert len(place) == len(string)
-    
+
             combined: str = ""
             in_editing: bool = False
 
@@ -153,4 +179,31 @@ class OnelineBigyoRenderer(BigyoRenderer):
                 processed[i] = combine_str(string, delete, cue_place)
             elif line_cue == "+ ":
                 processed[i] = combine_str(string, add, cue_place)
-        return self.join_with_spaces(*processed)
+        return self._join_with_spaces(*processed)
+
+
+class VerticalBigyoRenderer(BigyoRenderer):
+    """
+    Vertical Renderer for narrow screen.
+    Separator will be used for separate lines.
+
+    :param sep: Separator for separate two compared lines, defaults to "-"
+    :param mark_unchanged: Flag to decide :class:`Bigyo` whether it passes line as-is
+                          or mark unchanged line with "  " indicator, defaultes to False
+    """
+
+    def __init__(self, sep: str="-", mark_unchanged: bool=False):
+        super().__init__(sep, mark_unchanged)
+
+    def render(self, *, left: str="", right: str="",\
+            left_replace: Optional[str]=None, right_replace: Optional[str]=None) -> str:
+        processed = ""
+        processed += "< " + left + "\n"
+        if left_replace:
+            processed += "< " + BigyoRenderer._replace_unicode_match(left, left_replace) + "\n"
+        processed += "> " + right + "\n"
+        if right_replace:
+            processed += "> " + BigyoRenderer._replace_unicode_match(right, right_replace) + "\n"
+        processed += self.sep * (self.maxlen + 2)
+        processed += "\n"
+        return processed

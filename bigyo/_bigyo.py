@@ -5,7 +5,7 @@ File with main bigyo class
 import difflib
 from typing import Sequence, Iterator, Optional
 from wcwidth import wcswidth
-from bigyo.bigyo_renderer import BigyoRenderer, SimpleBigyoRenderer
+from bigyo import bigyo_renderer
 
 class Bigyo:
     """
@@ -23,47 +23,47 @@ class Bigyo:
 
     :param bigyo_renderer: Bigyo rendering strategy, which decides way to render comparison. It can be :class:`BigyoRenderer` object, or None (which uses :class:`SimpleBigyoRenderer`), defaults to None
     """
-    def __init__(self, bigyo_renderer: Optional[BigyoRenderer]=None):
+    def __init__(self, renderer: Optional[bigyo_renderer.BigyoRenderer]=None):
         self._recent_indicator: str = ''
         self._recent_lines: list[str] = []
-        if bigyo_renderer is None:
-            bigyo_renderer = SimpleBigyoRenderer()
-        self.bigyo_renderer = bigyo_renderer
+        if renderer is None:
+            renderer = bigyo_renderer.SimpleBigyoRenderer()
+        self.renderer: bigyo_renderer.BigyoRenderer = renderer
 
     # new line patterns: " ", "-", "+", "-+", "-?+", "-+?", "-?+?"
     # tokens: " ", "-", "+", "?"
     def _completed_pattern(self, indicator: str) -> Iterator[str]:
         assert self._recent_indicator.startswith(indicator)
         if indicator == " ":
-            yield self.bigyo_renderer.render(
+            yield self.renderer.render(
                 left=self._recent_lines[0],
                 right=self._recent_lines[0],
                 )
             self._recent_indicator = self._recent_indicator[1:]
             self._recent_lines = self._recent_lines[1:]
         elif indicator == "+":
-            yield self.bigyo_renderer.render(
+            yield self.renderer.render(
                 right=self._recent_lines[0],
                 )
             self._recent_indicator = self._recent_indicator[1:]
             self._recent_lines = self._recent_lines[1:]
         elif indicator == "-":
-            yield self.bigyo_renderer.render(
+            yield self.renderer.render(
                 left=self._recent_lines[0],
                 )
             self._recent_indicator = self._recent_indicator[1:]
             self._recent_lines = self._recent_lines[1:]
         elif indicator == "-+":
-            yield self.bigyo_renderer.render(
+            yield self.renderer.render(
                 left=self._recent_lines[0],
                 right=self._recent_lines[1],
                 )
             self._recent_indicator = self._recent_indicator[2:]
             self._recent_lines = self._recent_lines[2:]
         elif indicator == "-?+":
-            if self.bigyo_renderer.mark_unchanged:
+            if self.renderer.mark_unchanged:
                 self._recent_lines[2] = " " + self._recent_lines[2][1:]
-            yield self.bigyo_renderer.render(
+            yield self.renderer.render(
                 left=self._recent_lines[0],
                 right=self._recent_lines[2],
                 left_replace=self._recent_lines[1],
@@ -71,9 +71,9 @@ class Bigyo:
             self._recent_indicator = self._recent_indicator[3:]
             self._recent_lines = self._recent_lines[3:]
         elif indicator == "-+?":
-            if self.bigyo_renderer.mark_unchanged:
+            if self.renderer.mark_unchanged:
                 self._recent_lines[0] = " " + self._recent_lines[0][1:]
-            yield self.bigyo_renderer.render(
+            yield self.renderer.render(
                 left=self._recent_lines[0],
                 right=self._recent_lines[1],
                 right_replace=self._recent_lines[2],
@@ -81,7 +81,7 @@ class Bigyo:
             self._recent_indicator = self._recent_indicator[3:]
             self._recent_lines = self._recent_lines[3:]
         elif indicator == "-?+?":
-            yield self.bigyo_renderer.render(
+            yield self.renderer.render(
                 left=self._recent_lines[0],
                 right=self._recent_lines[2],
                 left_replace=self._recent_lines[1],
@@ -98,7 +98,7 @@ class Bigyo:
         :param right: Right sequence to compare
         :return: Iterator, where `next()` call returns line with its difference.
         """
-        self.bigyo_renderer.maxlen = max(map(wcswidth, map(lambda x: x.strip("\n"), left))) + 2
+        self.renderer.maxlen = max(map(wcswidth, map(lambda x: x.strip("\n"), left))) + 2
         lines = difflib.Differ().compare(left, right)
 
         for next_line in lines:
@@ -155,4 +155,10 @@ class Bigyo:
 if __name__ == "__main__":
     a = ["Hello, World\n", "안녕, 세계"]
     b = ["Helo, Wold!\n", "안넝, 새개!"]
-    print(Bigyo().comparison_string(a, b))
+    renderers = bigyo_renderer.__all__
+    renderers.remove("BigyoRenderer")
+    bigyo = Bigyo()
+    for next_renderer_name in renderers:
+        next_renderer = bigyo_renderer.__dict__[next_renderer_name]()
+        bigyo.renderer = next_renderer
+        print(bigyo.comparison_string(a, b))
