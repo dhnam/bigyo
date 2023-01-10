@@ -109,7 +109,6 @@ class SimpleBigyoRenderer(BigyoRenderer):
 
 
 class OnelineBigyoRenderer(BigyoRenderer):
-    # TODO Add margine to prettify
     """
     One-line Bigyo rendering stratgy.
 
@@ -121,17 +120,21 @@ class OnelineBigyoRenderer(BigyoRenderer):
 
     So <added difference will be shown like this>, and >removed difference will be shown like this<.
 
+    As mark is added, string width can be enlarged unpredictably. Margin is added to solve this problem.
+
     :param sep: Separator for separate two compared lines, defaults to "|"
     :param mark_unchanged: Flag to decide :class:`Bigyo` whether it passes line as-is
                           or mark unchanged line with "  " indicator, defaultes to True
     :param add_mark: Characters to mark range of added difference, defaultes to ("<", ">")
     :param delete_mark: Characters to mark range of removed difference, defaultes to (">", "<")
+    :param margin: Additional space to deal with enlarged width problem, defaults to 2
     """
     def __init__(self, sep="|", mark_unchanged=True,\
-                 add_mark: tuple[str, str]=("<", ">"), delete_mark: tuple[str, str]=(">", "<")):
+                 add_mark: tuple[str, str]=("<", ">"), delete_mark: tuple[str, str]=(">", "<"), margin: int=2):
         super().__init__(sep, mark_unchanged)
         self.add_mark = add_mark
         self.delete_mark = delete_mark
+        self.margin = margin
 
     def render(self, *, left: str = "", right: str = "",\
                left_replace: Optional[str] = None, right_replace: Optional[str] = None) -> str:
@@ -159,6 +162,7 @@ class OnelineBigyoRenderer(BigyoRenderer):
                 combined += closer
             return combined
 
+        self.maxlen += self.margin
         processed: list[str] = ["", ""]
         for i, (string, cue) in enumerate([(left, left_replace), (right, right_replace)]):
             if string == "":
@@ -179,7 +183,9 @@ class OnelineBigyoRenderer(BigyoRenderer):
                 processed[i] = combine_str(string, delete, cue_place)
             elif line_cue == "+ ":
                 processed[i] = combine_str(string, add, cue_place)
-        return self._join_with_spaces(*processed)
+        res = self._join_with_spaces(*processed)
+        self.maxlen -= self.margin
+        return res
 
 
 class VerticalBigyoRenderer(BigyoRenderer):
