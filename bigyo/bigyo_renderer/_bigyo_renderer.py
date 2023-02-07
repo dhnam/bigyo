@@ -55,7 +55,7 @@ class BigyoRenderer(ABC):
         return f"{left}{' '*(self.maxlen - left_width)}{self.sep}{right}" + "\n"
 
     @staticmethod
-    def _replace_unicode_match(string: str, replace: str) -> str:
+    def _replace_string_fit_full_width(string: str, replace: str) -> str:
         """
         Helper function to make replace string match the visual length of the string.
 
@@ -111,8 +111,8 @@ class SimpleBigyoRenderer(BigyoRenderer):
         diff_line = self._join_with_spaces(left, right)
         if any([left_replace, right_replace]):
             diff_line += self._join_with_spaces(
-                "" if left_replace is None else BigyoRenderer._replace_unicode_match(left, left_replace),
-                "" if right_replace is None else BigyoRenderer._replace_unicode_match(right, right_replace),
+                "" if left_replace is None else BigyoRenderer._replace_string_fit_full_width(left, left_replace),
+                "" if right_replace is None else BigyoRenderer._replace_string_fit_full_width(right, right_replace),
                 )
         return diff_line
 
@@ -157,19 +157,27 @@ class OnelineBigyoRenderer(BigyoRenderer):
             combined: str = ""
             in_editing: bool = False
 
-            opener = self.delete_mark[0] if operation == delete else self.add_mark[0]
-            closer = self.delete_mark[1] if operation == delete else self.add_mark[1]
+            if operation == delete:
+                opener, closer = self.delete_mark
+            else:
+                opener, closer = self.add_mark
             for next_char, is_combined in zip(string, place):
-                if is_combined != in_editing:
-                    if not in_editing:
-                        combined += opener
-                    else:
-                        combined += closer
-                    in_editing = not in_editing
+                if is_combined and not in_editing:
+                    combined += opener
+                    in_editing = True
+                if in_editing and not is_combined:
+                    combined += closer
+                    in_editing = False
                 combined += next_char
             if in_editing:
                 combined += closer
             return combined
+
+        def check_replace_position(cue: list[str], length:int) -> list[bool]:
+            replace_pos:list[bool] = [False] * length
+            for i, next_char in enumerate(cue):
+                replace_pos[i] = (next_char != " ")
+            return replace_pos
 
         self.maxlen += self.margin
         processed: list[str] = ["", ""]
@@ -178,13 +186,11 @@ class OnelineBigyoRenderer(BigyoRenderer):
                 processed[i] = ""
                 continue
             line_cue, string = string[:2], string[2:]
-            cue_place = [False] * len(string)
             if cue is None:
                 cue_place = [True] * len(string)
             else:
                 cue = cue[2:]
-                for j, next_char in enumerate(cue):
-                    cue_place[j] = (next_char != " ")
+                cue_place = check_replace_position(cue, len(string))
 
             if line_cue == "  ":
                 processed[i] = string
@@ -215,10 +221,10 @@ class VerticalBigyoRenderer(BigyoRenderer):
         processed = ""
         processed += "< " + left + "\n"
         if left_replace:
-            processed += "< " + BigyoRenderer._replace_unicode_match(left, left_replace) + "\n"
+            processed += "< " + BigyoRenderer._replace_string_fit_full_width(left, left_replace) + "\n"
         processed += "> " + right + "\n"
         if right_replace:
-            processed += "> " + BigyoRenderer._replace_unicode_match(right, right_replace) + "\n"
+            processed += "> " + BigyoRenderer._replace_string_fit_full_width(right, right_replace) + "\n"
         processed += self.sep * (self.maxlen + 2)
         processed += "\n"
         return processed

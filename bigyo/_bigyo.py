@@ -125,8 +125,6 @@ class Bigyo:
                 yield from self._completed_pattern("+")
             elif self._recent_indicator == "-+?":
                 yield from self._completed_pattern("-+?")
-            elif self._recent_indicator in ("-? ",  "-?-" , "-??"):
-                raise Exception(self._recent_indicator)
             elif self._recent_indicator == "-?+ ":
                 yield from self._completed_pattern("-?+")
                 yield from self._completed_pattern(" ")
@@ -137,6 +135,8 @@ class Bigyo:
                 yield from self._completed_pattern("+")
             elif self._recent_indicator == "-?+?":
                 yield from self._completed_pattern("-?+?")
+            elif self._recent_indicator in ("-? ",  "-?-" , "-??"):
+                raise Exception(self._recent_indicator)
 
         if self._recent_indicator != "":
             yield from self._completed_pattern(self._recent_indicator)
@@ -153,8 +153,8 @@ class Bigyo:
         return ''.join(self.compare(left, right))
 
 if __name__ == "__main__":
-    a = ["Hello, World\n", "안녕, 세계"]
-    b = ["Helo, Wold!\n", "안넝, 새개!"]
+    a = ["Hello, World\n", "안녕, 세계", "For Test! 테스트용입니다."]
+    b = ["Helo, Wold!\n", "안넝, 새개!", "For Test! 테스트용", "빈 라인"]
     renderers = bigyo_renderer.__all__
     renderers.remove("BigyoRenderer")
     bigyo = Bigyo()
